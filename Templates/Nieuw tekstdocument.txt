@@ -1,0 +1,13 @@
+$projectName = "ag0813"
+# $projectName = Read-Host -Prompt "Enter a project name that is used to generate resource names"
+$keyvaultname= "${projectName}kv"
+$upn = "a.goossens@mmguide.nl"
+$adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+$templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\working.json"
+
+New-AzResourceGroupDeployment `
+  -Name blanktemplate `
+  -templateFile $templateFile  `
+  -ResourceGroupName $projectName  `
+  -keyVaultName $keyvaultname `
+  -adUserId $adUserId
