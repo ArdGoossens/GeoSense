@@ -1,13 +1,79 @@
-$projectName = "ag0813"
+#-------------------------------
+# Variables
+#-------------------------------
+$projectName = "ag0811"
 # $projectName = Read-Host -Prompt "Enter a project name that is used to generate resource names"
-$keyvaultname= "${projectName}kv"
 $upn = "a.goossens@mmguide.nl"
-$adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
 $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\working.json"
 
+
+#-------------------------------
+# generated variables
+#-------------------------------
+$SubscriptionID = (Get-AzContext).Subscription.id
+$secret1 = -join ((33..126) | Get-Random -Count 44 | % {[char]$_})
+
+#-------------------------------
+# derived variables
+#-------------------------------
+$resourceGroupName = "${projectName}rg"
+$keyvaultname= "${projectName}kv"
+$adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+$keyVaultId = "/subscriptions/$SubscriptionID/resourceGroups/$resourceGroupName/providers/Microsoft.KeyVault/vaults/$keyvaultname"
+
+
+#-------------------------------
+# deploy resourcegroup
+#-------------------------------
+New-AzResourceGroup -Name $resourceGroupName -Location "westeurope"
+
+#-------------------------------
+# deploy keyvault
+#-------------------------------
 New-AzResourceGroupDeployment `
   -Name blanktemplate `
   -templateFile $templateFile  `
-  -ResourceGroupName $projectName  `
+  -ResourceGroupName $resourceGroupName `
   -keyVaultName $keyvaultname `
   -adUserId $adUserId
+
+Write-Host "Press [ENTER] to continue ..."
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+#-------------------------------
+# 
+#-------------------------------
+
+
+
+
+

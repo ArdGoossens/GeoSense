@@ -27,6 +27,8 @@
                 "enabledForDeployment": false,
                 "enabledForTemplateDeployment": true,
                 "enabledForDiskEncryption": false,
+                "enableSoftDelete": false,
+                "softDeleteRetentionInDays": "7",
                 "accessPolicies": [
                     {
                         "objectId": "[parameters('adUserId')]",
