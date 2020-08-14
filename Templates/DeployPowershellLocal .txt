@@ -1,0 +1,52 @@
+az
+Connect-AzAccount
+
+
+
+# Variables
+#-------------------------------
+$projectName = "ag0814b"
+$upn = "a.goossens@mmguide.nl"
+$templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\Deploy.json"
+
+# derived variables
+#-------------------------------
+$resourceGroupName = "${projectName}rg"
+$adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+
+# deploy resourcegroup
+#-------------------------------
+New-AzResourceGroup -Name $resourceGroupName -Location "westeurope"
+
+# deploy keyvault
+#-------------------------------
+New-AzResourceGroupDeployment `
+  -templateFile $templateFile `
+  -Name DeployKeyVault `
+  -ResourceGroupName $resourceGroupName `
+  -projectName $projectName `
+  -adUserId $adUserId
+
+Write-Host "Press [ENTER] to continue ..."
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+

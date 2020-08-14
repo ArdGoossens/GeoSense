@@ -1,0 +1,177 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
+        },
+        "tenantId": {
+            "type": "string",
+            "defaultValue": "[subscription().tenantId]"
+        },
+        "ProjectName": {
+            "type": "string"
+        },
+        "adUserId": {
+            "type": "string"
+        },
+        "StorageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS"
+        },
+        "StorageKind": {
+            "type": "string",
+            "defaultValue": "StorageV2"
+        },
+        "StorageAccessTier": {
+            "type": "string",
+            "defaultValue": "Cool"
+        },
+        "StorageMinimumTlsVersion": {
+            "type": "string",
+            "defaultValue": "TLS1_0"
+        },
+        "StorageSupportsHttpsTrafficOnly": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "StorageAllowBlobPublicAccess": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "StorageNetworkAclsBypass": {
+            "type": "string",
+            "defaultValue": "AzureServices"
+        },
+        "StorageNetworkAclsDefaultAction": {
+            "type": "string",
+            "defaultValue": "Allow"
+        }
+    },
+    "variables": {        
+        "StorageAccountName": "[concat(parameters('ProjectName'),'stor')]",
+        "keyvaultname": "[concat(parameters('ProjectName'),'kv')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('keyvaultname')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "enabledForDeployment": false,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": false,
+                "enableSoftDelete": false,
+                "softDeleteRetentionInDays": "7",
+                "accessPolicies": [
+                    {
+                        "objectId": "[parameters('adUserId')]",
+                        "tenantId": "[parameters('tenantId')]",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
+                    }
+                ],
+                "tenantId": "[parameters('tenantId')]",
+                "sku": {
+                    "name": "standard",
+                    "family": "A"
+                }
+            },
+            "resources": [
+                {
+                    "type": "secrets",
+                    "name": "StorageKey",
+                    "apiVersion": "2015-06-01",
+                    "tags": { "displayName": "secret" },
+                    "properties": {
+                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultname'))]",
+                        "[concat('Microsoft.Storage/storageAccounts/',variables('storageAccountName'))]"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "[variables('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "accessTier": "[parameters('StorageAccessTier')]",
+                "minimumTlsVersion": "[parameters('StorageMinimumTlsVersion')]",
+                "supportsHttpsTrafficOnly": "[parameters('StorageSupportsHttpsTrafficOnly')]",
+                "allowBlobPublicAccess": "[parameters('StorageAllowBlobPublicAccess')]",
+                "networkAcls": {
+                    "bypass": "[parameters('StorageNetworkAclsBypass')]",
+                    "defaultAction": "[parameters('StorageNetworkAclsDefaultAction')]",
+                    "ipRules": []
+                }
+            },
+            "dependsOn": [],
+            "sku": {
+                "name": "[parameters('StorageAccountType')]"
+            },
+            "kind": "[parameters('StorageKind')]",
+            "tags": {}
+        }
+    ],
+    "outputs": {
+        "keyVaultId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.KeyVault/vaults', variables('keyvaultname'))]"
+        },
+        "StorageId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        },
+        "StorageAccount": {
+            "type": "string",
+            "value": "[Concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+        },
+        "test2": {
+            "type": "string",
+            "value": "[subscription().tenantId]"
+        }
+    }
+}
