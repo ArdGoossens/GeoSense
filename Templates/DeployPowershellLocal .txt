@@ -1,11 +1,15 @@
 az
 Connect-AzAccount
 
+$secret1 = -join ((33..126) | Get-Random -Count 44 | % {[char]$_})
+
+
 
 
 # Variables
 #-------------------------------
-$projectName = "ag0814"
+$projectName = "ag0717"
+$WebsiteName ="geosense4"
 $upn = "a.goossens@mmguide.nl"
 $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\Deploy.json"
 
@@ -13,6 +17,7 @@ $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Temp
 #-------------------------------
 $resourceGroupName = "${projectName}rg"
 $adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+$StorageName = "${projectName}stor"
 
 # deploy resourcegroup
 #-------------------------------
@@ -25,10 +30,44 @@ New-AzResourceGroupDeployment `
   -Name DeployKeyVault `
   -ResourceGroupName $resourceGroupName `
   -projectName $projectName `
-  -adUserId $adUserId
+  -adUserId $adUserId `
+  -WebsiteName $WebsiteName
 
 Write-Host "Press [ENTER] to continue ..."
 
+# set up deployment from github
+#-------------------------------
+	go into the resourcegroup.
+	choose app service
+	in the app service, go to deployment center
+		within "Continuous Deployment (CI / CD)" choose github 
+	click continue
+		choose github actions
+	click continue
+		choose GeoUpload as repository
+		choose master as branch 
+		choose add as workflow option
+		choose .NET core as runtime stack
+		version should be 3.1 (default)
+	click continue
+	click finish
+	in git:
+		git pull origin master
+		git push origin master
+
+	wait until website is up ( few minutes)
+
+
+
+# link up website to storage
+#-------------------------------
+$connection = (az storage account show-connection-string --name $StorageName --output tsv)
+az webapp config appsettings set --name $WebsiteName --resource-group $resourceGroupName --settings AzureStorageConfig:ConnectionString=$connection AzureStorageConfig:FileContainerName=uploads
+
+
+
+
+
 # 
 #-------------------------------
 
@@ -40,13 +79,6 @@ Write-Host "Press [ENTER] to continue ..."
 # 
 #-------------------------------
 
-
-# 
-#-------------------------------
-
-
-# 
-#-------------------------------
-
+https://geosense.azurewebsites.net
 
 

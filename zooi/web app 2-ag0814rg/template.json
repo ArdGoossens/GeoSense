@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "WebsiteName": {
+        "sites_GeoSense_name": {
             "defaultValue": "GeoSense",
             "type": "String"
         },
@@ -16,7 +16,7 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('WebsiteName')]",
+            "name": "[parameters('sites_GeoSense_name')]",
             "location": "West Europe",
             "kind": "app",
             "properties": {
@@ -51,10 +51,10 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-             "name": "[concat(parameters('WebsiteName'), '/web')]",
-            "location": "[parameters('location')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/web')]",
+            "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": 1,
@@ -77,7 +77,7 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "[CONCAT('$',parameters('WebsiteName'))]",
+                "publishingUsername": "$GeoSense",
                 "azureStorageAccounts": {},
                 "scmType": "GitHubAction",
                 "use32BitWorkerProcess": true,
@@ -125,10 +125,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/8b646aa26e154e31b4f97783e33541b7')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/8b646aa26e154e31b4f97783e33541b7')]",
             "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -144,10 +144,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/8b646aa26e154e31b4f97783e33541b8')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/8b646aa26e154e31b4f97783e33541b8')]",
             "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -163,10 +163,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/9adc47c2a99446c29d80118723dcc18b')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/9adc47c2a99446c29d80118723dcc18b')]",
             "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -182,10 +182,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/ae75e592d1022869f64f64c7da9ad4d3b04ff5a71597408380572')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/ae75e592d1022869f64f64c7da9ad4d3b04ff5a71597408380572')]",
             "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -200,10 +200,10 @@
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/', parameters('WebsiteName'), '.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_GeoSense_name'), '/', parameters('sites_GeoSense_name'), '.azurewebsites.net')]",
             "location": "West Europe",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_GeoSense_name'))]"
             ],
             "properties": {
                 "siteName": "GeoSense",

@@ -49,11 +49,11 @@
             "defaultValue": "Allow"
         },
         "serverfarms_blob_exercise_plan_name": {
-            "defaultValue": "serverfarmgeosense",
+            "defaultValue": "[concat('serverfarm',parameters('WebsiteName'))]",
             "type": "String"
         },
         "WebsiteName": {
-            "defaultValue": "GeoSense",
+            "defaultValue": "geosense",
             "type": "String"
         }
     },
@@ -201,16 +201,15 @@
 
 
 
-
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
             "name": "[parameters('WebsiteName')]",
             "location": "[parameters('location')]",
-            "kind": "app",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_blob_exercise_plan_name'))]"
             ],
+            "kind": "app",
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
@@ -220,7 +219,7 @@
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('WebsiteName'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(parameters('WebsiteName'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
@@ -265,12 +264,13 @@
                 "phpVersion": "5.6",
                 "requestTracingEnabled": false,
                 "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
                 "publishingUsername": "[CONCAT('$',parameters('WebsiteName'))]",
                 "azureStorageAccounts": {},
-                "scmType": "None",
+                "scmType": "GitHubAction",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
                 "alwaysOn": false,
@@ -316,19 +316,18 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/8b646aa26e154e31b4f97783e33541b8')]", //TODO
-            "location": "[parameters('location')]",
+            "name": "[concat(parameters('WebsiteName'), '/ae75e592d1022869f64f64c7da9ad4d3b04ff5a71597408380572')]",
+            "location": "West Europe",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
             ],
             "properties": {
                 "status": 4,
-                "author_email": "N/A",
-                "author": "N/A",
-                "deployer": "ZipDeploy",
-                "message": "Created via a push deployment",
-                "start_time": "2020-08-14T09:51:01.7216449Z",
-                "end_time": "2020-08-14T09:51:07.5700592Z",
+                "author": "ArdGoossens",
+                "deployer": "GitHub",
+                "message": "{\"type\":\"Deployment\",\"sha\":\"ae75e592d1022869f64f64c7da9ad4d3b04ff5a7\",\"repoName\":\"ArdGoossens/GeoUpload\"}",
+                "start_time": "2020-08-14T12:33:01.1893761Z",
+                "end_time": "2020-08-14T12:33:01.1893761Z",
                 "active": true
             }
         },
@@ -336,7 +335,7 @@
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('WebsiteName'), '/', parameters('WebsiteName'), '.azurewebsites.net')]",
-            "location": "[parameters('location')]",
+            "location": "West Europe",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
             ],
