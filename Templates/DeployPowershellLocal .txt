@@ -5,7 +5,7 @@ Connect-AzAccount
 
 # Variables
 #-------------------------------
-$projectName = "ag0814b"
+$projectName = "ag0814"
 $upn = "a.goossens@mmguide.nl"
 $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\Deploy.json"
 

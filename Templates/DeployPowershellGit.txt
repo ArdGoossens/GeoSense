@@ -1,0 +1,59 @@
+az
+Connect-AzAccount
+
+git bash:
+cd "c:\Users\a.goossens\OneDrive - MM-Guide BV\github"
+CD GeoSense
+git add .
+git commit -m "commit the changes"
+git push origin master
+
+
+# Variables
+#-------------------------------
+$projectName = "ag0814c"
+$upn = "a.goossens@mmguide.nl"
+$templateFile = "https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FArdGoossens%2FGeoSense%2Fmaster%2FTemplates%2FDeploy.json"
+does not work yet
+
+# derived variables
+#-------------------------------
+$resourceGroupName = "${projectName}rg"
+$adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+
+# deploy resourcegroup
+#-------------------------------
+New-AzResourceGroup -Name $resourceGroupName -Location "westeurope"
+
+# deploy keyvault
+#-------------------------------
+New-AzResourceGroupDeployment `
+  -templateFile $templateFile `
+  -Name DeployKeyVault `
+  -ResourceGroupName $resourceGroupName `
+  -projectName $projectName `
+  -adUserId $adUserId
+
+Write-Host "Press [ENTER] to continue ..."
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+# 
+#-------------------------------
+
+
+
