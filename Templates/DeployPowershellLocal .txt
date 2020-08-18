@@ -8,8 +8,8 @@ $secret1 = -join ((33..126) | Get-Random -Count 44 | % {[char]$_})
 
 # Variables
 #-------------------------------
-$projectName = "ag0717"
-$WebsiteName ="geosense4"
+$projectName = "ag0818"
+$WebsiteName ="geosense"
 $upn = "a.goossens@mmguide.nl"
 $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\Deploy.json"
 
@@ -17,7 +17,7 @@ $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Temp
 #-------------------------------
 $resourceGroupName = "${projectName}rg"
 $adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
-$StorageName = "${projectName}stor"
+
 
 # deploy resourcegroup
 #-------------------------------
@@ -33,7 +33,44 @@ New-AzResourceGroupDeployment `
   -adUserId $adUserId `
   -WebsiteName $WebsiteName
 
-Write-Host "Press [ENTER] to continue ..."
+#  upload data
+#-------------------------------
+# get storage resource
+$StorageResource =  Get-AzResource -ResourceGroupName $resourceGroupName -ResourceType "Microsoft.Storage/storageAccounts"
+# Get Storage Account Key
+$storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -AccountName $StorageResource.name).Value[0]
+# Set AzStorageContext
+$StorageContext = New-AzStorageContext -StorageAccountName $StorageResource.name-StorageAccountKey $storageAccountKey
+# set container name
+$containerName = "uploads"
+# create container
+New-AzStorageContainer -Name $containerName -Context $StorageContext -Permission blob
+# upload files
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\DINOBRO_Entities_20200623.json" `
+  -Container $containerName `
+  -Blob "DINOBRO_Entities_20200623.json" `
+  -Context $StorageContext 
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\DINOBRO_EntityDescriptions_20200623.json" `
+  -Container $containerName `
+  -Blob "DINOBRO_EntityDescriptions_20200623.json" `
+  -Context $StorageContext 
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\DINOBRO_TimeEntities_20200623.json" `
+  -Container $containerName `
+  -Blob "DINOBRO_TimeEntities_20200623.json" `
+  -Context $StorageContext 
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\SUNFLOWER_Entities_20200616.json" `
+  -Container $containerName `
+  -Blob "SUNFLOWER_Entities_20200616.json" `
+  -Context $StorageContext 
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\SUNFLOWER_EntityDescriptions_20200616.json" `
+  -Container $containerName `
+  -Blob "SUNFLOWER_EntityDescriptions_20200616.json" `
+  -Context $StorageContext 
+Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geosense\SUNFLOWER_TimeEntities_20200616.json" `
+  -Container $containerName `
+  -Blob "SUNFLOWER_TimeEntities_20200616.json" `
+  -Context $StorageContext 
+
 
 # set up deployment from github
 #-------------------------------
@@ -52,24 +89,22 @@ Write-Host "Press [ENTER] to continue ..."
 	click continue
 	click finish
 	in git:
-		git pull origin master
-		git push origin master
+cd "c:\Users\a.goossens\OneDrive - MM-Guide BV\github"
+cd geoupload
+git pull origin master
+git push origin master
 
 	wait until website is up ( few minutes)
 
-
-
 # link up website to storage
 #-------------------------------
-$connection = (az storage account show-connection-string --name $StorageName --output tsv)
+$StorageResource = Get-AzResource -ResourceGroupName $resourceGroupName  -ResourceType "Microsoft.Storage/storageAccounts"
+
+$connection = (az storage account show-connection-string --name $StorageResource.name --output tsv)
 az webapp config appsettings set --name $WebsiteName --resource-group $resourceGroupName --settings AzureStorageConfig:ConnectionString=$connection AzureStorageConfig:FileContainerName=uploads
 
 
 
-
-
-# 
-#-------------------------------
 
 
 # 

@@ -58,9 +58,10 @@
         }
     },
     "variables": {
-        "StorageAccountName": "[concat(parameters('ProjectName'),'stor')]",
-        "keyvaultname": "[concat(parameters('ProjectName'),'kv')]"
-
+        "StorageAccountName": "[concat('storage0000',uniquestring(resourceGroup().id))]",
+        "keyvaultname": "[concat('keyvault200',uniquestring(resourceGroup().id))]",
+        "ServerName": "[concat('server00000',uniquestring(resourceGroup().id))]",
+        "DatabaseName": "[concat('database000',uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -188,19 +189,6 @@
                 "targetWorkerSizeId": 0
             }
         },
-
-
-
-
-
-
-
-
-
-
-
-
-
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
@@ -314,24 +302,6 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites/deployments",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('WebsiteName'), '/ae75e592d1022869f64f64c7da9ad4d3b04ff5a71597408380572')]",
-            "location": "West Europe",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
-            ],
-            "properties": {
-                "status": 4,
-                "author": "ArdGoossens",
-                "deployer": "GitHub",
-                "message": "{\"type\":\"Deployment\",\"sha\":\"ae75e592d1022869f64f64c7da9ad4d3b04ff5a7\",\"repoName\":\"ArdGoossens/GeoUpload\"}",
-                "start_time": "2020-08-14T12:33:01.1893761Z",
-                "end_time": "2020-08-14T12:33:01.1893761Z",
-                "active": true
-            }
-        },
-        {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('WebsiteName'), '/', parameters('WebsiteName'), '.azurewebsites.net')]",
@@ -342,6 +312,35 @@
             "properties": {
                 "siteName": "[parameters('WebsiteName')]",
                 "hostNameType": "Verified"
+            }
+        },
+        {
+            "name": "[variables('ServerName')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2019-06-01-preview",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "administratorLogin": "Ard",
+                "administratorLoginPassword": "Goossens."
+            }
+        },
+        {
+            "name": "[concat(variables('ServerName'), '/', variables('DatabaseName'))]",
+
+            "type": "Microsoft.Sql/servers/databases",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('ServerName'))]"
+            ],
+            "apiVersion": "2019-06-01-preview",
+            "location": "[parameters('location')]",
+            "tags": {},
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
             }
         }
     ],
@@ -365,6 +364,14 @@
         "website": {
             "type": "string",
             "value": "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]"
+        },
+        "SQLServer": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Sql/servers', variables('ServerName'))]"
+        },
+        "Database": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Sql/servers/databases', variables('DatabaseName'))]"
         },
         "test2": {
             "type": "string",
