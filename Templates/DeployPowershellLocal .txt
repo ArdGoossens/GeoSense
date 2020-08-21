@@ -1,3 +1,7 @@
+github databricks token: 4588c4ca6d895781220cc51dc46d74258090ae7c
+
+
+
 az
 Connect-AzAccount
 
@@ -8,15 +12,17 @@ $secret1 = -join ((33..126) | Get-Random -Count 44 | % {[char]$_})
 
 # Variables
 #-------------------------------
-$projectName = "ag0818"
+$projectName = "ag0819"
 $WebsiteName ="geosense"
 $upn = "a.goossens@mmguide.nl"
 $templateFile = "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\Templates\Deploy.json"
+$SQLCommand= Get-Content "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\datamodel.sql" -Raw 
 
 # derived variables
 #-------------------------------
 $resourceGroupName = "${projectName}rg"
 $adUserId = (Get-AzADUser -UserPrincipalName $upn).Id
+$IPAddress =(Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
 
 
 # deploy resourcegroup
@@ -32,6 +38,7 @@ New-AzResourceGroupDeployment `
   -projectName $projectName `
   -adUserId $adUserId `
   -WebsiteName $WebsiteName
+  -IpAddress $IPAddress
 
 #  upload data
 #-------------------------------
@@ -71,7 +78,36 @@ Set-AzStorageBlobContent -File "C:\Users\a.goossens\OneDrive - MM-Guide BV\geose
   -Blob "SUNFLOWER_TimeEntities_20200616.json" `
   -Context $StorageContext 
 
+# deploy datamodel
+#-------------------------------	
+	$SQLCommand= Get-Content "C:\Users\a.goossens\OneDrive - MM-Guide BV\github\GeoSense\datamodel.sql" -Raw 
+	$SQLCommand= $SQLCommand -replace "'","''"
+	$SQLCommand= $SQLCommand -replace "`t"," "
+	$SQLCommand= $SQLCommand -replace "     "," "
+	$SQLCommand= $SQLCommand -replace "    "," "
+	$SQLCommand= $SQLCommand -replace "   "," "
+	$SQLCommand= $SQLCommand -replace "  "," "
+	$SQLCommand= $SQLCommand -replace "`n ","`n"
+	$SQLCommand= $SQLCommand -replace " `r","`r"
+	$SQLCommand= $SQLCommand -replace "`nGO`r","');exec('"
+	$SQLCommand= "exec('${SQLCommand}')"
+	$scriptscon = New-Object System.Data.SqlClient.SqlConnection
+        $scriptcmd = New-Object System.Data.SqlClient.SqlCommand
+	$scriptcmd.CommandTimeout = 0
+	$sqlservername=(Get-AzResource -ResourceGroupName $resourceGroupName -ResourceType "Microsoft.Sql/servers").name
+	$databasename =(Get-AzResource -ResourceGroupName $resourceGroupName -ResourceType "Microsoft.Sql/servers/databases" -name database* ).name
+	$databasename = $databasename -replace "${sqlservername}/",""
+	$scriptscon.ConnectionString = "Server=tcp:$sqlservername.database.windows.net,1433;Initial Catalog=$databasename;Persist Security Info=False;User ID=Ard;Password=Goossens.;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+	$scriptcmd.Connection = $scriptscon
+	$scriptscon.Open()
+        $scriptcmd.CommandText = $SQLCommand
+	$scriptdetails = $scriptcmd.ExecuteReader()
+	$scriptscon.Dispose()
+	$scriptcmd.Dispose()
 
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # set up deployment from github
 #-------------------------------
 	go into the resourcegroup.

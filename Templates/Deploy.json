@@ -55,6 +55,10 @@
         "WebsiteName": {
             "defaultValue": "geosense",
             "type": "String"
+        },
+        "IPAddress": {
+            "defaultValue": "",
+            "type": "String"
         }
     },
     "variables": {
@@ -342,6 +346,18 @@
                 "name": "Basic",
                 "tier": "Basic"
             }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[concat(variables('ServerName'), '/ClientIPAddress_2020-8-19_8-43-15')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('ServerName'))]"
+            ],
+            "properties": {
+                "startIpAddress": "[parameters('IPAddress')]",
+                "endIpAddress": "[parameters('IPAddress')]"
+            }
         }
     ],
     "outputs": {
@@ -369,10 +385,10 @@
             "type": "string",
             "value": "[resourceId('Microsoft.Sql/servers', variables('ServerName'))]"
         },
-        "Database": {
-            "type": "string",
-            "value": "[resourceId('Microsoft.Sql/servers/databases', variables('DatabaseName'))]"
-        },
+        // "Database": {
+        //     "type": "string",
+        //     "value": "[resourceId('Microsoft.Sql/servers/databases', variables('DatabaseName'))]"
+        // },
         "test2": {
             "type": "string",
             "value": "[subscription().tenantId]"
